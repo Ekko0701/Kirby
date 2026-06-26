@@ -1,22 +1,15 @@
 import Foundation
 import AppKit
 
-/// Full Disk Access(FDA) 보유 여부를 추정한다.
+/// 디스크 접근 가능 여부를 추정한다.
 ///
-/// macOS에는 FDA를 직접 묻는 공식 API가 없다. 그래서 FDA가 있어야만 읽히는 보호 경로를
-/// 실제로 읽어보는 "프로브" 방식을 쓴다.
+/// 청소의 핵심 대상인 `~/Library/Caches`를 실제로 읽을 수 있으면 동작 가능으로 본다.
+/// (완전한 보호 캐시까지 읽으려면 전체 디스크 접근 권한이 더 도움이 되지만, 기본 대상은
+/// FDA 없이도 읽히므로 사용을 막지 않는다.)
 enum PermissionChecker {
     static func hasFullDiskAccess() -> Bool {
-        let fm = FileManager.default
-        let candidates = [
-            NSHomeDirectory() + "/Library/Safari",
-            NSHomeDirectory() + "/Library/Application Support/com.apple.TCC",
-        ]
-        for path in candidates where fm.fileExists(atPath: path) {
-            return (try? fm.contentsOfDirectory(atPath: path)) != nil
-        }
-        // 보호 경로 후보가 없으면 캐시 접근으로 약하게 추정한다.
-        return (try? fm.contentsOfDirectory(atPath: NSHomeDirectory() + "/Library/Caches")) != nil
+        let target = NSHomeDirectory() + "/Library/Caches"
+        return (try? FileManager.default.contentsOfDirectory(atPath: target)) != nil
     }
 
     @MainActor
