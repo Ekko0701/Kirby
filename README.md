@@ -7,7 +7,16 @@ macOS용 정리(cleanup) 유틸리티. CleanMyMac류 앱을 SwiftUI + Swift 6로
 
 > 스캔해서 보여주고, 사용자가 직접 선택하고, 명시적으로 확인해야만 지운다. 자동 삭제는 없다.
 
-## 빠른 시작
+## 설치 (Homebrew)
+
+```bash
+brew tap Ekko0701/homebrew-kirby
+brew install --cask kirby
+```
+
+> 공증된 릴리스가 올라간 뒤부터 동작합니다. 릴리스 절차는 [docs/09-homebrew-distribution.md](docs/09-homebrew-distribution.md) 참고.
+
+## 빠른 시작 (소스 빌드)
 
 ```bash
 tuist generate          # Project.swift → Kirby.xcworkspace 생성
