@@ -8,14 +8,9 @@ struct TrashCleaner: CleanerModule {
 
     func scan(at root: String) async throws -> [ScanItem] {
         ChildScanner.items(
-            root: root + "/.Trash",
-            category: .trash,
-            defaultSelected: true,
-            isSafe: true
+            root: root + "/.Trash", category: .trash, defaultSelected: true, isSafe: true
         )
     }
 
-    func clean(_ items: [ScanItem]) async throws -> CleanSummary {
-        HardDeleter.clean(items)
-    }
+    func clean(_ items: [ScanItem]) async throws -> CleanSummary { HardDeleter.clean(items) }
 }

@@ -109,10 +109,16 @@ struct DashboardView: View {
 
     private func donutSegments(_ coordinator: CleanupCoordinator) -> [DonutSegment] {
         let colors: [ScanCategory: Color] = [
-            .cache: Theme.deepGreen,
-            .logs: Theme.actionBlue,
-            .trash: Theme.coral,
-            .developerJunk: Theme.slate,
+            .systemJunk: Theme.brandPrimary,
+            .userCache: Theme.deepGreen,
+            .aiApps: Theme.actionBlue,
+            .mail: Theme.coral,
+            .trash: Theme.slate,
+            .xcode: Theme.darkNavy,
+            .brew: Theme.coralSoft,
+            .node: Theme.focusBlue,
+            .docker: Theme.muted,
+            .largeOld: Theme.errorRed,
         ]
         return ScanCategory.allCases.compactMap { category in
             let bytes = (coordinator.itemsByCategory[category] ?? [])
