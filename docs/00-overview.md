@@ -28,14 +28,13 @@ flowchart LR
     G --> H[요약]
 ```
 
-## 무엇을 청소하나? (MVP 범주 4개)
+## 무엇을 청소하나? (PureMac 스타일 10개 범주)
 
-| 범주 | 경로 | 비고 |
-|---|---|---|
-| 사용자 캐시 | `~/Library/Caches` | 위험 항목은 denylist로 제외 |
-| 로그 | `~/Library/Logs` | 7일 지난 것 기본 선택 |
-| 휴지통 | `~/.Trash` | 실제로 비움 |
-| 개발자 정크 | DerivedData, npm/yarn/Homebrew 캐시 등 | Xcode 개발자용 |
+시스템 정크 · 사용자 캐시 · AI 앱(Ollama/LM Studio) · 메일 첨부 · 휴지통 · Xcode 정크 ·
+Homebrew 캐시 · Node 캐시(npm/yarn/pnpm) · Docker 캐시 · 대용량·오래된 파일.
+
+각 범주가 보는 경로와 기본 선택 규칙은 [04-cleaner-modules.md](04-cleaner-modules.md)에
+정리돼 있습니다. (시스템 캐시·대용량 파일은 안전을 위해 기본 해제, Docker는 미설치 시 비활성.)
 
 ## 핵심 기술 결정 (왜 이렇게 골랐나)
 

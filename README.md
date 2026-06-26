@@ -35,14 +35,20 @@ xcodebuild -workspace Kirby.xcworkspace -scheme Kirby \
 - [Tuist](https://tuist.dev)로 프로젝트 생성
 - Swift Testing으로 단위 테스트
 
-## 청소 범주 (MVP)
+## 청소 범주 (PureMac 스타일 10종)
 
-| 범주 | 경로 |
-|---|---|
-| 사용자 캐시 | `~/Library/Caches` (위험 항목 제외) |
-| 로그 | `~/Library/Logs` (7일 초과 기본 선택) |
-| 휴지통 | `~/.Trash` |
-| 개발자 정크 | DerivedData, npm/yarn/Homebrew 캐시 등 |
+| 범주 | 대상 | 기본 |
+|---|---|---|
+| 시스템 정크 | `~/Library/Logs`(7일+) · `/Library/Caches`(시스템) | 로그만 ✓ |
+| 사용자 캐시 | `~/Library/Caches` (위험 항목 denylist 제외) | ✓ |
+| AI 앱 | Ollama·LM Studio 로그/캐시 | ✓ |
+| 메일 첨부 | Mail 다운로드 첨부 | ✓ |
+| 휴지통 | `~/.Trash` | ✓ |
+| Xcode 정크 | DerivedData·CoreSimulator Caches·Archives·CocoaPods | DerivedData/Caches ✓ |
+| Homebrew 캐시 | `~/Library/Caches/Homebrew` (`HOMEBREW_CACHE` 존중) | ✓ |
+| Node 캐시 | npm·yarn·pnpm store | ✓ |
+| Docker 캐시 | `docker system prune` (미설치 시 비활성) | 해제 |
+| 대용량·오래된 파일 | >100MB 또는 1년+ (사용자 폴더) | 해제(자동선택 안 함) |
 
 ## 문서
 

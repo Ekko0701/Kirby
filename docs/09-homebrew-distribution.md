@@ -63,6 +63,37 @@ export KIRBY_NOTARY_PROFILE="KirbyNotary"
 
 > tap 저장소가 없으면 스크립트가 `gh repo create`로 만듭니다(gh 로그인 필요).
 
+## GitHub Actions 자동 릴리스 (태그 푸시)
+
+로컬에서 `release.sh`를 돌리는 대신, **`v*` 태그를 푸시하면** `.github/workflows/release.yml`이
+같은 파이프라인을 CI에서 실행합니다.
+
+```bash
+git tag v0.2.0 && git push origin v0.2.0     # → 자동 빌드·서명·공증·릴리스·cask 갱신
+```
+
+(수동 실행: Actions 탭 → Release → Run workflow → 버전 입력.)
+
+### 필요한 저장소 Secrets
+`Settings → Secrets and variables → Actions`에 등록:
+
+| Secret | 내용 |
+|---|---|
+| `RELEASE_TOKEN` | `repo` 권한 PAT (Kirby + homebrew-kirby 푸시/릴리스) |
+| `DEVELOPER_ID_CERT_P12` | Developer ID Application 인증서 `.p12`의 base64 |
+| `DEVELOPER_ID_CERT_PASSWORD` | 위 `.p12` 내보내기 암호 |
+| `KEYCHAIN_PASSWORD` | CI 임시 키체인 암호(임의 문자열) |
+| `NOTARY_APPLE_ID` | Apple ID 이메일 |
+| `NOTARY_TEAM_ID` | 팀 ID (예: `34JS69S5XZ`) |
+| `NOTARY_PASSWORD` | 앱 암호(app-specific password) |
+
+`.p12` 만들기: 키체인 접근 → "Developer ID Application: …" 인증서+개인키 함께 선택 → 내보내기(.p12)
+→ `base64 -i cert.p12 | pbcopy` → Secret에 붙여넣기.
+
+> ⚠️ 이 프로젝트는 **macOS 26 / Xcode 26**가 필요합니다. 워크플로는 `runs-on: macos-26`을
+> 사용합니다. GitHub가 해당 러너 이미지를 아직 제공하지 않으면 self-hosted 러너로 바꾸거나
+> 이미지가 GA될 때까지 로컬 `release.sh`를 쓰세요.
+
 ## 사용자 설치
 
 ```bash
