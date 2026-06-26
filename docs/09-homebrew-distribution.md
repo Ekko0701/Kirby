@@ -67,8 +67,13 @@ export KIRBY_NOTARY_PROFILE="KirbyNotary"
 
 ```bash
 brew tap Ekko0701/homebrew-kirby
+brew trust ekko0701/kirby      # 최신 Homebrew는 서드파티 tap 신뢰를 요구(1회)
 brew install --cask kirby
 ```
+
+> 최신 Homebrew는 서드파티 tap의 cask 로드를 기본 차단합니다(`Refusing to load cask … from
+> untrusted tap`). `brew trust ekko0701/kirby`로 1회 신뢰하거나 `HOMEBREW_NO_REQUIRE_TAP_TRUST=1`
+> 환경변수로 비활성화할 수 있습니다. 자세히: https://docs.brew.sh/Tap-Trust
 
 업데이트: 새 버전으로 `./scripts/release.sh 0.2.0` 실행 → 사용자는 `brew upgrade --cask kirby`.
 

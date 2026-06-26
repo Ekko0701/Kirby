@@ -11,10 +11,11 @@ macOS용 정리(cleanup) 유틸리티. CleanMyMac류 앱을 SwiftUI + Swift 6로
 
 ```bash
 brew tap Ekko0701/homebrew-kirby
+brew trust ekko0701/kirby      # 최신 Homebrew의 서드파티 tap 신뢰(1회)
 brew install --cask kirby
 ```
 
-> 공증된 릴리스가 올라간 뒤부터 동작합니다. 릴리스 절차는 [docs/09-homebrew-distribution.md](docs/09-homebrew-distribution.md) 참고.
+Developer ID 서명 + Apple 공증을 거쳐 Gatekeeper 경고 없이 설치됩니다. 릴리스 절차는 [docs/09-homebrew-distribution.md](docs/09-homebrew-distribution.md) 참고.
 
 ## 빠른 시작 (소스 빌드)
 
