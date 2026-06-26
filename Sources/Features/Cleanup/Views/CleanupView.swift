@@ -2,13 +2,8 @@ import SwiftUI
 
 /// Cleanup 기능의 최상위 화면. 상태에 따라 하위 화면을 분기한다.
 struct CleanupView: View {
-    @State private var coordinator: CleanupCoordinator
+    let coordinator: CleanupCoordinator
     @State private var showConfirm = false
-
-    init(coordinator: CleanupCoordinator? = nil) {
-        _coordinator = State(initialValue: coordinator
-            ?? CleanupCoordinator(modules: DefaultCleanerModules.all()))
-    }
 
     var body: some View {
         content
@@ -48,16 +43,16 @@ struct CleanupView: View {
 
     private var idleView: some View {
         ScrollingScreen {
-            Text("Kirby")
+            Text("Cleanup")
                 .font(VFont.sectionDisplay60)
                 .foregroundStyle(Theme.brandInk)
-            Text("macOS를 가볍게. 안전하게.")
+            Text("캐시 · 로그 · 휴지통 · 개발자 정크를 스캔하고 안전하게 정리합니다.")
                 .font(VFont.bodyLarge18)
                 .foregroundStyle(Theme.bodyMuted)
             FeatureBand {
                 VStack(alignment: .leading, spacing: Spacing.md12) {
-                    Text("Cleanup").font(VFont.featureHeading24)
-                    Text("캐시 · 로그 · 휴지통 · 개발자 정크를 스캔하고 안전하게 정리합니다. 스캔 후 직접 검토·선택하고, 확인을 거쳐야만 삭제합니다.")
+                    Text("안전 원칙").font(VFont.featureHeading24)
+                    Text("스캔 후 직접 검토·선택하고, 확인을 거쳐야만 삭제합니다. 자동 삭제는 없습니다.")
                         .font(VFont.body16)
                 }
             }

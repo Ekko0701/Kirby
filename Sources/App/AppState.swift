@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// 앱 전역의 가벼운 UI 상태. 기능별 무거운 상태는 각 Coordinator가 보유한다.
+/// 앱 전역 상태. Cleanup 코디네이터를 한 곳에서 소유해 Dashboard 분석과 Cleanup이 공유한다.
 @MainActor
 @Observable
 final class AppState {
-    var selectedFeature: Feature = .cleanup
+    var selectedFeature: Feature = .dashboard
+    let cleanup = CleanupCoordinator(modules: DefaultCleanerModules.all())
 }
