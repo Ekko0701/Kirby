@@ -47,7 +47,7 @@ struct CleanupView: View {
     }
 
     private var idleView: some View {
-        VStack(alignment: .leading, spacing: Spacing.xl24) {
+        ScrollingScreen {
             Text("Kirby")
                 .font(VFont.sectionDisplay60)
                 .foregroundStyle(Theme.brandInk)
@@ -62,25 +62,19 @@ struct CleanupView: View {
                 }
             }
             PillButton(title: "스캔 시작", kind: .primary) { coordinator.scan() }
-                .frame(maxWidth: 220)
-            Spacer()
+                .frame(width: 220)
         }
-        .padding(40)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Theme.canvas)
     }
 
     private func failedView(_ message: String) -> some View {
-        VStack(spacing: Spacing.lg16) {
+        CenteredScreen {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 44))
                 .foregroundStyle(Theme.errorRed)
             Text("문제가 발생했어요").font(VFont.cardHeading32)
             Text(message).font(VFont.body16).foregroundStyle(Theme.bodyMuted)
             PillButton(title: "다시 시도", kind: .primary) { coordinator.scan() }
-                .frame(maxWidth: 180)
+                .frame(width: 180)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.canvas)
     }
 }
