@@ -60,4 +60,20 @@ enum ScanCategory: String, CaseIterable, Identifiable, Sendable {
         case .largeOld: "사용자 파일이라 기본 해제됩니다. 선택 항목은 휴지통으로 이동(복구 가능)."
         }
     }
+
+    /// 스캔 결과가 비었을 때 보여줄 범주별 안내(왜 비었는지).
+    var emptyNote: String {
+        switch self {
+        case .systemJunk: "정리할 로그·시스템 캐시가 없습니다."
+        case .userCache: "정리할 캐시가 없습니다."
+        case .aiApps: "Ollama·LM Studio가 설치되어 있지 않거나, 정리할 로그·캐시가 없습니다."
+        case .mail: "정리할 메일 첨부가 없습니다."
+        case .trash: "휴지통이 비어 있습니다."
+        case .xcode: "정리할 Xcode 정크가 없습니다."
+        case .brew: "Homebrew가 없거나 정리할 캐시가 없습니다."
+        case .node: "npm·yarn·pnpm 캐시가 없습니다."
+        case .docker: "Docker가 설치되어 있지 않거나 정리할 캐시가 없습니다."
+        case .largeOld: "100MB 이상이거나 1년 넘은 파일이 없습니다."
+        }
+    }
 }

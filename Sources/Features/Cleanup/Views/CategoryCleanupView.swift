@@ -83,7 +83,10 @@ struct CategoryCleanupView: View {
     private var emptyState: some View {
         VStack(spacing: Spacing.md12) {
             Image(systemName: "checkmark.circle").font(.system(size: 40)).foregroundStyle(Theme.deepGreen)
-            Text("정리할 항목이 없습니다").font(VFont.bodyLarge18).foregroundStyle(Theme.bodyMuted)
+            Text("정리할 항목이 없습니다").font(VFont.bodyLarge18).foregroundStyle(Theme.brandInk)
+            Text(category.emptyNote)
+                .font(VFont.body16).foregroundStyle(Theme.bodyMuted)
+                .multilineTextAlignment(.center).frame(maxWidth: 420)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
