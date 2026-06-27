@@ -21,4 +21,13 @@ struct UserCacheCleanerTests {
         #expect(items.contains { $0.displayName == "com.google.Chrome" })
         #expect(!items.contains { $0.displayName == "CloudKit" })
     }
+
+    @Test("샌드박스 컨테이너 캐시도 스캔한다")
+    func scanContainerCaches() async throws {
+        let home = NSTemporaryDirectory() + "kirby-uc2-" + UUID().uuidString
+        defer { try? FileManager.default.removeItem(atPath: home) }
+        try writeFile(home + "/Library/Containers/com.foo.bar/Data/Library/Caches/blob/x.bin")
+        let items = try await UserCacheCleaner().scan(at: home)
+        #expect(items.contains { $0.displayName.contains("com.foo.bar") })
+    }
 }

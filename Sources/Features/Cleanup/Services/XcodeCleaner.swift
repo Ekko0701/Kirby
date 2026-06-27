@@ -1,6 +1,6 @@
 import Foundation
 
-/// Xcode 정크: DerivedData·CoreSimulator 캐시(기본선택), Archives·CocoaPods(기본 해제).
+/// Xcode 정크. DerivedData·CoreSimulator 캐시·DeviceSupport(기본선택), Archives·CocoaPods(기본 해제).
 /// CoreSimulator는 Caches만 — Devices(시뮬레이터 본체)는 절대 포함하지 않는다.
 struct XcodeCleaner: CleanerModule {
     let id = "xcode"
@@ -12,6 +12,9 @@ struct XcodeCleaner: CleanerModule {
     static let roots: [JunkRoot] = [
         .init(relativePath: "Library/Developer/Xcode/DerivedData", defaultSelected: true),
         .init(relativePath: "Library/Developer/CoreSimulator/Caches", defaultSelected: true),
+        .init(relativePath: "Library/Developer/Xcode/iOS DeviceSupport", defaultSelected: true),
+        .init(relativePath: "Library/Developer/Xcode/watchOS DeviceSupport", defaultSelected: true),
+        .init(relativePath: "Library/Developer/Xcode/tvOS DeviceSupport", defaultSelected: true),
         .init(relativePath: "Library/Developer/Xcode/Archives", defaultSelected: false),
         .init(relativePath: ".cocoapods", defaultSelected: false),
     ]
