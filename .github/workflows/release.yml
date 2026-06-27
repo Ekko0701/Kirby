@@ -1,0 +1,90 @@
+name: Release
+
+# 태그(v*) 푸시 시 자동으로 빌드→서명→공증→staple→GitHub Release→tap/cask 갱신.
+# 수동 실행(workflow_dispatch)도 지원.
+#
+# 필요한 저장소 Secrets (Settings → Secrets and variables → Actions):
+#   RELEASE_TOKEN              : repo 권한 PAT (Kirby + homebrew-kirby 푸시/릴리스용)
+#   DEVELOPER_ID_CERT_P12      : Developer ID Application 인증서 .p12 의 base64
+#   DEVELOPER_ID_CERT_PASSWORD : 위 .p12 내보내기 암호
+#   KEYCHAIN_PASSWORD          : CI 임시 키체인 암호(임의 문자열)
+#   NOTARY_APPLE_ID            : Apple ID 이메일
+#   NOTARY_TEAM_ID             : 팀 ID (예: 34JS69S5XZ)
+#   NOTARY_PASSWORD            : 앱 암호(app-specific password)
+#
+# .p12 만들기: 키체인 접근 → "Developer ID Application: ..." 인증서+개인키 선택 →
+#   내보내기(.p12) → base64 -i cert.p12 | pbcopy → Secret에 붙여넣기.
+#
+# ⚠️ 이 프로젝트는 macOS 26 / Xcode 26 툴체인이 필요합니다. GitHub-hosted 'macos-26'
+#    러너 이미지를 사용합니다. 이미지가 아직 없으면 self-hosted 러너를 쓰거나
+#    배포 타깃을 조정해야 합니다.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "버전 (예: 0.1.0)"
+        required: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-26
+    env:
+      GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode (latest stable)
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install Tuist
+        run: brew install --quiet tuist
+
+      - name: Configure git + gh auth
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global url."https://x-access-token:${{ secrets.RELEASE_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Import Developer ID certificate
+        env:
+          CERT_P12: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
+          CERT_PW: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+          KC_PW: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          CERT="$RUNNER_TEMP/cert.p12"
+          KC="$RUNNER_TEMP/build.keychain-db"
+          echo "$CERT_P12" | base64 --decode > "$CERT"
+          security create-keychain -p "$KC_PW" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KC_PW" "$KC"
+          security import "$CERT" -P "$CERT_PW" -A -t cert -f pkcs12 -k "$KC"
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KC_PW" "$KC" >/dev/null
+          ID=$(security find-identity -v -p codesigning "$KC" | grep "Developer ID Application" | head -1 | sed -E 's/.*"(.+)".*/\1/')
+          echo "KIRBY_SIGN_ID=$ID" >> "$GITHUB_ENV"
+          echo "서명 ID: $ID"
+
+      - name: Store notary credentials
+        run: |
+          xcrun notarytool store-credentials KirbyNotary \
+            --apple-id "${{ secrets.NOTARY_APPLE_ID }}" \
+            --team-id "${{ secrets.NOTARY_TEAM_ID }}" \
+            --password "${{ secrets.NOTARY_PASSWORD }}"
+          echo "KIRBY_NOTARY_PROFILE=KirbyNotary" >> "$GITHUB_ENV"
+
+      - name: Run release pipeline
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [ -z "$VERSION" ]; then VERSION="${GITHUB_REF_NAME#v}"; fi
+          echo "릴리스 버전: $VERSION"
+          ./scripts/release.sh "$VERSION"
