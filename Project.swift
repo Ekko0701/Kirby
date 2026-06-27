@@ -21,14 +21,14 @@ let project = Project(
                 "LSApplicationCategoryType": "public.app-category.utilities",
                 "ITSAppUsesNonExemptEncryption": false,
                 "NSHumanReadableCopyright": "Copyright © 2026 kimdongjoo. All rights reserved.",
-                "CFBundleShortVersionString": "0.1.0",
-                "CFBundleVersion": "1"
+                "CFBundleShortVersionString": "0.2.0",
+                "CFBundleVersion": "2"
             ]),
             sources: ["Sources/**"],
             dependencies: [],
             settings: .settings(base: [
-                "MARKETING_VERSION": "0.1.0",
-                "CURRENT_PROJECT_VERSION": "1",
+                "MARKETING_VERSION": "0.2.0",
+                "CURRENT_PROJECT_VERSION": "2",
                 "SWIFT_VERSION": "6.0",
                 "CODE_SIGN_IDENTITY": "-",
                 "CODE_SIGN_STYLE": "Manual",

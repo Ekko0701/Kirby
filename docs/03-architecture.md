@@ -1,34 +1,44 @@
-# 아키텍처 — 스캔과 청소는 어떻게 흐르나
+# 아키텍처 — 화면과 청소는 어떻게 흐르나
 
 > "버튼을 누르면 코드가 어디서 어디로 흘러가지?"를 따라가는 문서입니다.
 
-## 큰 그림: 3개의 층
+## 큰 그림: 네비게이션 + 3개의 층
+
+좌측 인스펙터(`SidebarItem`)가 무엇을 보여줄지 정하고, 그 아래는 뷰 → 조정자 → 모듈 3층입니다.
 
 ```mermaid
 flowchart TD
-    subgraph UI["뷰 (SwiftUI)"]
-        CV[CleanupView]
-        SR[ScanResultsView]
-    end
-    subgraph Coord["조정자 (@MainActor)"]
-        CC[CleanupCoordinator]
-    end
-    subgraph Modules["청소 모듈 (Sendable)"]
-        M1[CachesCleaner]
-        M2[LogsCleaner]
-        M3[TrashCleaner]
-        M4[DeveloperJunkCleaner]
-    end
+    SB[RootView<br/>섹션형 사이드바] -->|SidebarItem| DASH[DashboardView]
+    SB -->|category| CAT[CategoryCleanupView]
+    SB -->|installedApps/orphanedFiles| APPS[Applications 화면]
+    SB -->|purgeable| PURGE[PurgeableSpaceView]
 
-    CV --> CC
-    SR --> CC
-    CC --> M1 & M2 & M3 & M4
-    M1 & M2 & M3 & M4 --> FS[(파일 시스템)]
+    DASH --> CC[CleanupCoordinator<br/>@MainActor]
+    CAT --> CC
+    CC --> M[청소 모듈 10종<br/>SystemJunk·UserCache·…·Docker·LargeOld]
+    M --> FS[(파일 시스템 / docker CLI)]
 ```
 
 - **뷰**는 그리기만 한다. 로직을 갖지 않는다.
-- **Coordinator**는 상태(state)와 항목(items)을 들고, 모듈을 호출한다. 메인 액터에서만 동작한다.
-- **모듈**은 실제 파일 작업(스캔/삭제)을 한다. 서로 독립적이라 병렬로 돌 수 있다.
+- **Coordinator**는 상태(state)와 항목(items)을 들고 모듈을 호출한다. 메인 액터 전용.
+- **모듈**은 실제 파일 작업(스캔/삭제)을 한다. 서로 독립적이라 병렬로 돈다.
+
+## 네비게이션: `SidebarItem` / `SidebarSection`
+
+사이드바는 3개 섹션(OVERVIEW / APPLICATIONS / CLEANUP)으로 나뉘고, 각 항목이 `SidebarItem`입니다.
+
+```swift
+enum SidebarItem: Hashable, Identifiable {
+    case dashboard
+    case installedApps          // APPLICATIONS
+    case orphanedFiles
+    case category(ScanCategory) // CLEANUP — 범주별 항목
+    case purgeable
+}
+```
+
+`RootView`는 선택된 `SidebarItem`에 따라 디테일 뷰를 분기합니다. 새 최상위 화면은 case를 더하고
+`SidebarSection.items`에 넣으면 사이드바·라우팅이 확장됩니다.
 
 ## 핵심 추상화: `CleanerModule`
 
@@ -45,23 +55,18 @@ protocol CleanerModule: Sendable {
 > 💡 `scan(at root:)`이 홈 경로(`root`)를 **인자로 받는** 점이 중요합니다. 실제 앱에서는
 > `NSHomeDirectory()`를 넣지만, 테스트에서는 임시 폴더를 넣어 실제 홈을 건드리지 않고 검증합니다.
 
-## 상태 머신: `ScanState`
+## 공유 코디네이터 + 범주별 청소
 
-Coordinator는 항상 이 중 하나의 상태에 있습니다:
+`AppState`가 `CleanupCoordinator` 하나를 소유합니다. Dashboard가 진입 시 전체 스캔(`ensureScanned`)을
+돌리고, 각 `CategoryCleanupView`는 같은 코디네이터의 **그 범주 슬라이스**만 보여주고 정리합니다.
 
-```mermaid
-stateDiagram-v2
-    [*] --> idle
-    idle --> scanning: scan()
-    scanning --> scanned: 완료
-    scanning --> idle: cancelScan()
-    scanned --> cleaning: clean()
-    cleaning --> completed: 완료
-    completed --> idle: reset()
-    scanning --> failed: 에러
+```swift
+coordinator.items(in: .userCache)          // 그 범주 항목
+coordinator.selectedBytes(in: .userCache)  // 선택 용량
+await coordinator.clean(category: .userCache)  // 그 범주만 삭제
 ```
 
-뷰(`CleanupView`)는 이 상태를 보고 어떤 하위 화면을 그릴지 정합니다.
+전체 스캔은 공유, 정리는 범주별로 독립이라 각 범주 화면이 서로 간섭하지 않습니다.
 
 ## 병렬 스캔
 
@@ -83,9 +88,8 @@ await withTaskGroup(of: [ScanItem].self) { group in
 
 ## 왜 이렇게 나눴나 (확장성)
 
-새 범주를 추가하고 싶다면? **`CleanerModule` 구현 1개**를 만들고 `DefaultCleanerModules.all()`에
-넣으면 끝입니다. 뷰는 `ScanCategory.allCases`를 순회하므로 자동으로 새 범주가 화면에 나타납니다.
-
-더 큰 새 기능(예: 언인스톨러)은 `Feature` enum에 case를 추가하면 사이드바와 라우팅이 확장됩니다.
+- **새 청소 범주**: `ScanCategory`에 case 추가 + `CleanerModule` 구현 1개 + `DefaultCleanerModules.all()`
+  등록. 사이드바 CLEANUP 섹션·Dashboard 도넛이 자동 반영(`SidebarSection`/색상 맵에만 추가).
+- **새 최상위 화면**: `SidebarItem` case + `SidebarSection.items` + `RootView` 분기.
 
 다음: [04-cleaner-modules.md](04-cleaner-modules.md)
