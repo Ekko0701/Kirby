@@ -72,6 +72,8 @@ struct CategoryCleanupView: View {
                 .font(VFont.sectionHeading48).foregroundStyle(Theme.brandInk)
             Text("총 \(ByteFormat.string(total)) · 선택 \(ByteFormat.string(coordinator.selectedBytes(in: category)))")
                 .font(VFont.body16).foregroundStyle(Theme.bodyMuted)
+            Label("정리 전 관련 앱을 종료하면 더 안전합니다.", systemImage: "info.circle")
+                .font(VFont.micro12).foregroundStyle(Theme.muted)
         }
         .padding([.horizontal, .top], 32).padding(.bottom, Spacing.lg16)
         .frame(maxWidth: .infinity, alignment: .leading)

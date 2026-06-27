@@ -1,7 +1,8 @@
 import Foundation
 
 /// Docker 정리 가능 용량. 파일 삭제가 아니라 `docker system prune`을 실행한다.
-/// docker 미설치 시 빈 결과.
+/// 안전을 위해 `-a`(사용 안 하는 전체 이미지 제거) 없이, 댕글링 이미지·중지 컨테이너·
+/// 미사용 네트워크·빌드 캐시만 정리한다(named volume은 건드리지 않음). docker 미설치 시 빈 결과.
 struct DockerCleaner: CleanerModule {
     let id = "docker"
     let category = ScanCategory.docker
@@ -13,7 +14,7 @@ struct DockerCleaner: CleanerModule {
         guard bytes > 0 else { return [] }
         return [ScanItem(
             path: "docker://reclaimable",
-            displayName: "이미지·컨테이너·빌드 캐시",
+            displayName: "댕글링 이미지·중지 컨테이너·빌드 캐시",
             category: .docker, sizeBytes: bytes,
             isSafeToDelete: true, isSelectedByDefault: false
         )]
@@ -24,7 +25,7 @@ struct DockerCleaner: CleanerModule {
             return CleanSummary(itemsCleaned: 0, bytesFreed: 0, errors: [], timestamp: Date())
         }
         let before = Self.reclaimableBytes(docker: docker)
-        _ = Shell.run(docker, ["system", "prune", "-af"])
+        _ = Shell.run(docker, ["system", "prune", "-f"])
         let after = Self.reclaimableBytes(docker: docker)
         return CleanSummary(
             itemsCleaned: 1, bytesFreed: max(0, before - after),
@@ -32,7 +33,7 @@ struct DockerCleaner: CleanerModule {
         )
     }
 
-    /// `docker system df`의 Reclaimable 합(바이트).
+    /// `docker system df`의 Reclaimable 합(바이트). 추정치(요약은 실제 회수량으로 표시).
     static func reclaimableBytes(docker: String) -> Int64 {
         guard let result = Shell.run(docker, ["system", "df", "--format", "{{.Reclaimable}}"]),
               result.exitCode == 0 else { return 0 }
@@ -41,7 +42,6 @@ struct DockerCleaner: CleanerModule {
             .reduce(Int64(0)) { $0 + parseSize(String($1)) }
     }
 
-    /// "1.5GB (50%)" → 바이트.
     static func parseSize(_ text: String) -> Int64 {
         let token = text.trimmingCharacters(in: .whitespaces)
             .split(separator: " ").first.map(String.init) ?? ""

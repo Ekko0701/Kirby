@@ -1,6 +1,7 @@
 import Foundation
 
-/// 대용량(>100MB) 또는 오래된(1년+) 파일. 사용자 데이터이므로 절대 자동 선택하지 않는다.
+/// 대용량(>100MB) 또는 오래된(1년+) 파일. 사용자 데이터이므로 절대 자동 선택하지 않으며,
+/// 정리 시 영구 삭제가 아니라 **휴지통으로 이동**(복구 가능)한다.
 struct LargeOldCleaner: CleanerModule {
     let id = "largeOld"
     let category = ScanCategory.largeOld
@@ -16,7 +17,6 @@ struct LargeOldCleaner: CleanerModule {
         return Array(found.sorted { $0.sizeBytes > $1.sizeBytes }.prefix(Self.maxItems))
     }
 
-    /// 동기 순회(async 컨텍스트에서 enumerator의 makeIterator를 피하려 분리).
     private static func collect(root: String) -> [ScanItem] {
         let fm = FileManager.default
         let keys: Set<URLResourceKey> = [
@@ -52,5 +52,8 @@ struct LargeOldCleaner: CleanerModule {
         return found
     }
 
-    func clean(_ items: [ScanItem]) async throws -> CleanSummary { HardDeleter.clean(items) }
+    /// 사용자 데이터라 영구 삭제 대신 휴지통으로 이동(복구 가능).
+    func clean(_ items: [ScanItem]) async throws -> CleanSummary {
+        TrashRemover.trash(items.map(\.path))
+    }
 }

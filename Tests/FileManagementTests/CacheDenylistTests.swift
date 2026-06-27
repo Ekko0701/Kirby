@@ -7,6 +7,8 @@ struct CacheDenylistTests {
     func deniesKnown() {
         #expect(CacheDenylist.isDenied(folderName: "CloudKit"))
         #expect(CacheDenylist.isDenied(folderName: "com.apple.bird"))
+        #expect(CacheDenylist.isDenied(folderName: "com.apple.assistant"))
+        #expect(CacheDenylist.isDenied(folderName: "com.apple.akd"))
     }
 
     @Test("일반 캐시 폴더는 허용")
