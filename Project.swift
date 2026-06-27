@@ -25,6 +25,7 @@ let project = Project(
                 "CFBundleVersion": "3"
             ]),
             sources: ["Sources/**"],
+            resources: ["Resources/**"],
             dependencies: [],
             settings: .settings(base: [
                 "MARKETING_VERSION": "0.3.0",
@@ -34,7 +35,8 @@ let project = Project(
                 "CODE_SIGN_STYLE": "Manual",
                 "ENABLE_HARDENED_RUNTIME": "YES",
                 "DEAD_CODE_STRIPPING": "YES",
-                "SWIFT_STRICT_CONCURRENCY": "complete"
+                "SWIFT_STRICT_CONCURRENCY": "complete",
+                "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon"
             ])
         ),
         .target(
