@@ -137,6 +137,32 @@ final class CleanupCoordinator {
         selectedItems(in: category).reduce(0) { $0 + $1.sizeBytes }
     }
 
+    /** 모든 범주의 선택 항목을 한 번에 정리(원클릭). 각 모듈의 clean을 사용해 삭제 방식을 존중한다. */
+    func cleanAllSelected() async -> CleanSummary {
+        let selected = selectedItems
+        guard !selected.isEmpty else {
+            return CleanSummary(itemsCleaned: 0, bytesFreed: 0, errors: [], timestamp: Date())
+        }
+        let byCategory = Dictionary(grouping: selected, by: \.category)
+        var totalItems = 0
+        var totalFreed: Int64 = 0
+        var errors: [CleanItemError] = []
+        for module in modules {
+            guard let chunk = byCategory[module.category], !chunk.isEmpty else { continue }
+            if let result = try? await module.clean(chunk) {
+                totalItems += result.itemsCleaned
+                totalFreed += result.bytesFreed
+                errors.append(contentsOf: result.errors)
+            }
+        }
+        let cleanedIDs = Set(selected.map(\.id))
+        items.removeAll { cleanedIDs.contains($0.id) }
+        return CleanSummary(
+            itemsCleaned: totalItems, bytesFreed: totalFreed,
+            errors: errors, timestamp: Date()
+        )
+    }
+
     /** 한 범주의 선택 항목만 정리하고 요약을 돌려준다. */
     func clean(category: ScanCategory) async -> CleanSummary {
         let selected = selectedItems(in: category)
