@@ -76,4 +76,12 @@ enum ScanCategory: String, CaseIterable, Identifiable, Sendable {
         case .largeOld: "100MB 이상이거나 1년 넘은 파일이 없습니다."
         }
     }
+
+    /// 이 범주를 읽으려면 전체 디스크 접근(FDA)이 필요한가. (휴지통·메일은 보호 경로)
+    var requiresFullDiskAccess: Bool {
+        switch self {
+        case .trash, .mail: true
+        default: false
+        }
+    }
 }

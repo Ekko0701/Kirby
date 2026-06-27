@@ -8,6 +8,7 @@ struct CategoryCleanupView: View {
     @State private var phase: Phase = .browsing
     @State private var showConfirm = false
     @State private var summary: CleanSummary?
+    @State private var hasFullDiskAccess = true
 
     private enum Phase { case browsing, cleaning, done }
 
@@ -24,7 +25,10 @@ struct CategoryCleanupView: View {
             } message: {
                 Text("\(coordinator.selectedItems(in: category).count)개 항목, 총 \(ByteFormat.string(coordinator.selectedBytes(in: category)))를 삭제합니다. 복구할 수 없습니다.")
             }
-            .task { coordinator.ensureScanned() }
+            .task {
+                hasFullDiskAccess = PermissionChecker.hasFullDiskAccess()
+                coordinator.ensureScanned()
+            }
     }
 
     @ViewBuilder
@@ -80,15 +84,31 @@ struct CategoryCleanupView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    @ViewBuilder
     private var emptyState: some View {
-        VStack(spacing: Spacing.md12) {
-            Image(systemName: "checkmark.circle").font(.system(size: 40)).foregroundStyle(Theme.deepGreen)
-            Text("정리할 항목이 없습니다").font(VFont.bodyLarge18).foregroundStyle(Theme.brandInk)
-            Text(category.emptyNote)
-                .font(VFont.body16).foregroundStyle(Theme.bodyMuted)
-                .multilineTextAlignment(.center).frame(maxWidth: 420)
+        if category.requiresFullDiskAccess && !hasFullDiskAccess {
+            VStack(spacing: Spacing.md12) {
+                Image(systemName: "lock.shield").font(.system(size: 40)).foregroundStyle(Theme.coral)
+                Text("전체 디스크 접근 권한이 필요합니다").font(VFont.bodyLarge18).foregroundStyle(Theme.brandInk)
+                Text("\(category.title) 항목을 읽으려면 시스템 설정에서 Kirby에 '전체 디스크 접근'을 켜주세요. 권한이 없으면 항목이 비어 보입니다.")
+                    .font(VFont.body16).foregroundStyle(Theme.bodyMuted)
+                    .multilineTextAlignment(.center).frame(maxWidth: 460)
+                PillButton(title: "전체 디스크 접근 열기", kind: .primary) {
+                    PermissionChecker.openSettings()
+                }
+                .frame(width: 240)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            VStack(spacing: Spacing.md12) {
+                Image(systemName: "checkmark.circle").font(.system(size: 40)).foregroundStyle(Theme.deepGreen)
+                Text("정리할 항목이 없습니다").font(VFont.bodyLarge18).foregroundStyle(Theme.brandInk)
+                Text(category.emptyNote)
+                    .font(VFont.body16).foregroundStyle(Theme.bodyMuted)
+                    .multilineTextAlignment(.center).frame(maxWidth: 420)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func row(_ item: ScanItem) -> some View {
