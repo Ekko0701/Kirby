@@ -11,13 +11,19 @@ struct DashboardView: View {
     private enum CleanPhase { case idle, cleaning, done }
 
     var body: some View {
-        ScrollingScreen {
-            Text("Dashboard")
-                .font(VFont.sectionDisplay60)
-                .foregroundStyle(Theme.brandInk)
+        Group {
+            if cleanPhase == .cleaning {
+                CleaningProgressView(title: "정리 중…", subtitle: "선택한 항목을 정리하고 있습니다")
+            } else {
+                ScrollingScreen {
+                    Text("Dashboard")
+                        .font(VFont.sectionDisplay60)
+                        .foregroundStyle(Theme.brandInk)
 
-            diskCard
-            reclaimableCard
+                    diskCard
+                    reclaimableCard
+                }
+            }
         }
         .confirmationDialog(
             "선택한 항목을 한 번에 정리할까요?",

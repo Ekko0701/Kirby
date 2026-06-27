@@ -37,7 +37,7 @@ struct CategoryCleanupView: View {
         case (.scanning, _):
             CleanProgressView(title: "스캔 중…", progress: scanProgress) { coordinator.cancelScan() }
         case (_, .cleaning):
-            CleanProgressView(title: "정리 중…", progress: 0)
+            CleaningProgressView(title: "정리 중…", subtitle: "\(category.title) 항목을 정리하고 있습니다")
         case (_, .done):
             SummaryView(summary: summary) { phase = .browsing }
         default:
