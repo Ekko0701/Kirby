@@ -58,10 +58,11 @@ struct CategoryCleanupView: View {
                     ForEach(items) { item in row(item) }
                 }
                 .listStyle(.inset)
+                .scrollContentBackground(.hidden)
                 footer
             }
         }
-        .background(Theme.canvas)
+        .background(AuroraBackground())
     }
 
     private func header(_ items: [ScanItem]) -> some View {
@@ -118,7 +119,7 @@ struct CategoryCleanupView: View {
             ) { showConfirm = true }
             .frame(width: 280)
         }
-        .padding(24).background(Theme.canvas)
+        .padding(24).background(.ultraThinMaterial)
         .overlay(Rectangle().frame(height: 1).foregroundStyle(Theme.hairline), alignment: .top)
     }
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 딥그린 풀폭 밴드(DESIGN.md dark-feature-band). 흰 캔버스를 끊어주는 강조 영역.
+/// 그라데이션 강조 밴드.
 struct FeatureBand<Content: View>: View {
     @ViewBuilder var content: Content
 
@@ -8,8 +8,13 @@ struct FeatureBand<Content: View>: View {
         content
             .padding(Spacing.xxl32)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.deepGreen)
+            .background(Theme.bandGradient)
             .foregroundStyle(Theme.onDark)
             .clipShape(RoundedRectangle(cornerRadius: Radius.lg22, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.lg22, style: .continuous)
+                    .strokeBorder(Theme.hairline, lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.30), radius: 16, y: 8)
     }
 }

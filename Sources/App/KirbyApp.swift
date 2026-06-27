@@ -9,7 +9,7 @@ struct KirbyApp: App {
             RootView()
                 .environment(appState)
                 .frame(minWidth: 940, minHeight: 640)
-                .preferredColorScheme(.light)
+                .preferredColorScheme(.dark)
         }
         .windowStyle(.titleBar)
         .windowResizability(.contentMinSize)

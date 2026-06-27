@@ -21,6 +21,8 @@ struct InstalledAppsView: View {
             .navigationDestination(for: InstalledApp.self) { app in
                 AppUninstallView(app: app, model: model)
             }
+            .scrollContentBackground(.hidden)
+            .background(AuroraBackground())
             .navigationTitle("Installed Apps (\(model.apps.count))")
         }
         .task { model.loadApps() }

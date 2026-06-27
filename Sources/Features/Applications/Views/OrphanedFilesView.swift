@@ -76,6 +76,7 @@ struct OrphanedFilesView: View {
                 .onTapGesture { model.toggle(item) }
             }
             .listStyle(.inset)
+                .scrollContentBackground(.hidden)
 
             HStack {
                 Button("다시 스캔") { model.scan() }
@@ -87,9 +88,9 @@ struct OrphanedFilesView: View {
                 }
                 .frame(width: 280)
             }
-            .padding(24).background(Theme.canvas)
+            .padding(24).background(.ultraThinMaterial)
             .overlay(Rectangle().frame(height: 1).foregroundStyle(Theme.hairline), alignment: .top)
         }
-        .background(Theme.canvas)
+        .background(AuroraBackground())
     }
 }

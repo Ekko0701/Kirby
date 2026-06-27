@@ -1,34 +1,54 @@
 import SwiftUI
 
-/// DESIGN.md 팔레트를 SwiftUI로 옮긴 토큰.
-///
-/// SwiftUI 내장 `Color.primary`와 충돌하지 않도록 `Theme` 네임스페이스를 쓴다.
+/// 오로라(바이올렛·블루·틸) 다크 테마 토큰. 기존 토큰명을 유지하되 다크값으로 리포인트.
 enum Theme {
-    static let brandInk = Color(hex: 0x212121)      // 본문/링크 기본
-    static let brandPrimary = Color(hex: 0x17171c)  // 주 CTA, 다크 카드
-    static let cohereBlack = Color(hex: 0x000000)
-    static let deepGreen = Color(hex: 0x003c33)      // 제품 다크 밴드
-    static let darkNavy = Color(hex: 0x071829)
-    static let canvas = Color(hex: 0xffffff)         // 기본 배경
-    static let softStone = Color(hex: 0xeeece7)      // 따뜻한 중립 카드
-    static let paleGreen = Color(hex: 0xedfce9)
-    static let paleBlue = Color(hex: 0xf1f5ff)
-    static let hairline = Color(hex: 0xd9d9dd)        // 기본 구분선
-    static let borderLight = Color(hex: 0xe5e7eb)
-    static let cardBorder = Color(hex: 0xf2f2f2)
-    static let muted = Color(hex: 0x93939f)
-    static let slate = Color(hex: 0x75758a)
-    static let bodyMuted = Color(hex: 0x616161)
-    static let actionBlue = Color(hex: 0x1863dc)     // 에디토리얼 링크
-    static let focusBlue = Color(hex: 0x4c6ee6)
-    static let coral = Color(hex: 0xff7759)          // 소량 액센트
-    static let coralSoft = Color(hex: 0xffad9b)
-    static let onDark = Color(hex: 0xffffff)
-    static let errorRed = Color(hex: 0xb30000)
+    // 오로라 액센트
+    static let violet = Color(hex: 0x7C5CFF)
+    static let indigo = Color(hex: 0x5B7CFF)
+    static let blue = Color(hex: 0x4C7DFF)
+    static let teal = Color(hex: 0x2DD4BF)
+
+    // 다크 베이스
+    static let bg0 = Color(hex: 0x0B0B14)
+    static let bg1 = Color(hex: 0x14122A)
+
+    // 시맨틱(다크 리포인트)
+    static let canvas = Color(hex: 0x0E0E1A)
+    static let cohereBlack = Color(hex: 0x05050A)
+    static let brandInk = Color(hex: 0xF3F3FA)          // 기본 텍스트(밝음)
+    static let brandPrimary = violet                     // 주 CTA 베이스
+    static let deepGreen = teal                          // 강조(밴드/링/체크)
+    static let darkNavy = Color(hex: 0x1B2A4A)
+    static let softStone = Color(white: 1, opacity: 0.06) // 글래스 표면
+    static let hairline = Color(white: 1, opacity: 0.12)
+    static let borderLight = Color(white: 1, opacity: 0.08)
+    static let cardBorder = Color(white: 1, opacity: 0.10)
+    static let muted = Color(hex: 0x7C7C97)
+    static let slate = Color(hex: 0x9A9AB6)
+    static let bodyMuted = Color(hex: 0xAEAECB)
+    static let actionBlue = Color(hex: 0x7AA2FF)
+    static let focusBlue = Color(hex: 0x7AA2FF)
+    static let coral = Color(hex: 0xFF7E6B)
+    static let coralSoft = Color(hex: 0xFFAD9B)
+    static let onDark = Color.white
+    static let errorRed = Color(hex: 0xFF6B6B)
+
+    // 그라데이션
+    static let aurora = LinearGradient(
+        colors: [violet, blue, teal],
+        startPoint: .topLeading, endPoint: .bottomTrailing)
+    static let ringGradient = AngularGradient(
+        gradient: Gradient(colors: [violet, blue, teal, violet]),
+        center: .center)
+    static let cardSurface = LinearGradient(
+        colors: [Color(white: 1, opacity: 0.10), Color(white: 1, opacity: 0.03)],
+        startPoint: .topLeading, endPoint: .bottomTrailing)
+    static let bandGradient = LinearGradient(
+        colors: [Color(hex: 0x2A1F5C), Color(hex: 0x16294A)],
+        startPoint: .topLeading, endPoint: .bottomTrailing)
 }
 
 extension Color {
-    /// 0xRRGGBB 정수로 sRGB 색을 만든다. 팔레트 값을 한 곳(Theme)에만 두기 위한 헬퍼.
     init(hex: UInt, opacity: Double = 1.0) {
         let red = Double((hex >> 16) & 0xff) / 255.0
         let green = Double((hex >> 8) & 0xff) / 255.0

@@ -1,11 +1,11 @@
 import SwiftUI
 
 enum PillButtonKind {
-    case primary    // 니어블랙 채움 pill — 최우선 액션
-    case secondary  // 투명 + 헤어라인 보더 — 보조 액션
+    case primary
+    case secondary
 }
 
-/// DESIGN.md의 pill CTA. hover 시 살짝 어두워지는 의도된 상태 변화를 가진다.
+/// pill CTA. primary는 오로라 그라데이션 + 글로우, secondary는 글래스.
 struct PillButton: View {
     let title: String
     var kind: PillButtonKind = .primary
@@ -24,29 +24,25 @@ struct PillButton: View {
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .foregroundStyle(foreground)
+        .foregroundStyle(kind == .primary ? Color.white : Theme.brandInk)
         .background(background)
         .clipShape(Capsule())
-        .overlay(
-            Capsule().strokeBorder(Theme.hairline, lineWidth: kind == .secondary ? 1 : 0)
-        )
+        .overlay(Capsule().strokeBorder(Theme.hairline, lineWidth: kind == .secondary ? 1 : 0))
+        .shadow(color: kind == .primary ? Theme.violet.opacity(isHovering ? 0.55 : 0.40) : .clear,
+                radius: 14, y: 6)
         .opacity(isEnabled ? 1 : 0.4)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
         .disabled(!isEnabled)
     }
 
-    private var foreground: Color {
+    @ViewBuilder
+    private var background: some View {
         switch kind {
-        case .primary: Theme.onDark
-        case .secondary: Theme.brandInk
-        }
-    }
-
-    private var background: Color {
-        switch kind {
-        case .primary: isHovering ? Theme.cohereBlack : Theme.brandPrimary
-        case .secondary: isHovering ? Theme.softStone : Color.clear
+        case .primary:
+            Theme.aurora.opacity(isHovering ? 0.92 : 1)
+        case .secondary:
+            (isHovering ? Color(white: 1, opacity: 0.10) : Color(white: 1, opacity: 0.04))
         }
     }
 }
