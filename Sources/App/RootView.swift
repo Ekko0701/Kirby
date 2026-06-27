@@ -22,6 +22,7 @@ struct RootView: View {
             }
             .scrollContentBackground(.hidden)
             .background(AuroraBackground())
+            .disabled(appState.isCleaning)          // 정리 중 사이드바 잠금
             .navigationSplitViewColumnWidth(min: 240, ideal: 260, max: 320)
         } detail: {
             detail(for: appState.selectedItem)

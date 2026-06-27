@@ -2,6 +2,7 @@ import SwiftUI
 
 /// 한 청소 범주의 스캔 결과를 보여주고, 그 범주만 선택·정리한다.
 struct CategoryCleanupView: View {
+    @Environment(AppState.self) private var appState
     let category: ScanCategory
     let coordinator: CleanupCoordinator
 
@@ -151,10 +152,12 @@ struct CategoryCleanupView: View {
 
     private func startClean() {
         phase = .cleaning
+        appState.isCleaning = true
         Task {
             let result = await coordinator.clean(category: category)
             summary = result
             phase = .done
+            appState.isCleaning = false
         }
     }
 }

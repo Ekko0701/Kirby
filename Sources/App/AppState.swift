@@ -6,4 +6,7 @@ import SwiftUI
 final class AppState {
     var selectedItem: SidebarItem = .dashboard
     let cleanup = CleanupCoordinator(modules: DefaultCleanerModules.all())
+
+    /// 정리(삭제)가 진행 중이면 true. 진행 중에는 사이드바 이동을 막는다.
+    var isCleaning = false
 }

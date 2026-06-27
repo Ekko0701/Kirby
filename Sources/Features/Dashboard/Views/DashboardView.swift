@@ -173,10 +173,12 @@ struct DashboardView: View {
 
     private func startCleanAll() {
         cleanPhase = .cleaning
+        appState.isCleaning = true
         Task {
             let summary = await appState.cleanup.cleanAllSelected()
             cleanSummary = summary
             cleanPhase = .done
+            appState.isCleaning = false
             disk = DiskSpace.current()
         }
     }
