@@ -92,8 +92,8 @@ struct DashboardView: View {
                                     .font(VFont.monoLabel14).foregroundStyle(Theme.slate)
                             }
                         }
-                        PillButton(title: "정리하러 가기", kind: .primary) {
-                            appState.selectedFeature = .cleanup
+                        PillButton(title: "User Cache 정리", kind: .primary) {
+                            appState.selectedItem = .category(.userCache)
                         }
                         .frame(width: 220)
                         .padding(.top, Spacing.sm8)

@@ -17,16 +17,16 @@ enum ScanCategory: String, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .systemJunk: "시스템 정크"
-        case .userCache: "사용자 캐시"
-        case .aiApps: "AI 앱"
-        case .mail: "메일 첨부"
-        case .trash: "휴지통"
-        case .xcode: "Xcode 정크"
-        case .brew: "Homebrew 캐시"
-        case .node: "Node 캐시"
-        case .docker: "Docker 캐시"
-        case .largeOld: "대용량·오래된 파일"
+        case .systemJunk: "System Junk"
+        case .userCache: "User Cache"
+        case .aiApps: "AI Apps"
+        case .mail: "Mail Files"
+        case .trash: "Trash Bins"
+        case .xcode: "Xcode Junk"
+        case .brew: "Brew Cache"
+        case .node: "Node Cache"
+        case .docker: "Docker Cache"
+        case .largeOld: "Large & Old Files"
         }
     }
 
@@ -41,7 +41,7 @@ enum ScanCategory: String, CaseIterable, Identifiable, Sendable {
         case .brew: "cup.and.saucer"
         case .node: "cube.box"
         case .docker: "cube.transparent"
-        case .largeOld: "tray.full"
+        case .largeOld: "doc.text"
         }
     }
 }

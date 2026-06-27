@@ -1,33 +1,51 @@
 import SwiftUI
 
-/// 사이드바(섹션별 기능 목록) + 디테일(선택 기능 화면) 셸.
+/// 섹션형 사이드바(OVERVIEW/APPLICATIONS/CLEANUP) + 디테일 라우팅.
 struct RootView: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
         @Bindable var appState = appState
-        let selection = Binding<Feature?>(
-            get: { appState.selectedFeature },
-            set: { if let newValue = $0 { appState.selectedFeature = newValue } }
+        let selection = Binding<SidebarItem?>(
+            get: { appState.selectedItem },
+            set: { if let newValue = $0 { appState.selectedItem = newValue } }
         )
         return NavigationSplitView {
             List(selection: selection) {
-                ForEach(FeatureSection.allCases) { section in
+                ForEach(SidebarSection.allCases) { section in
                     Section(section.rawValue) {
-                        ForEach(Feature.features(in: section)) { feature in
-                            Label(feature.title, systemImage: feature.systemImage).tag(feature)
+                        ForEach(section.items) { item in
+                            row(item)
                         }
                     }
                 }
             }
-            .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 300)
+            .navigationSplitViewColumnWidth(min: 240, ideal: 260, max: 320)
         } detail: {
-            switch appState.selectedFeature {
-            case .dashboard: DashboardView()
-            case .cleanup: CleanupGate(coordinator: appState.cleanup)
-            case .uninstaller: UninstallerView()
-            case .orphanFinder: OrphanFinderView()
-            }
+            detail(for: appState.selectedItem)
+        }
+    }
+
+    @ViewBuilder
+    private func row(_ item: SidebarItem) -> some View {
+        if case .installedApps = item {
+            Label(item.title, systemImage: item.systemImage)
+                .badge(AppInventory.installedCount())
+                .tag(item)
+        } else {
+            Label(item.title, systemImage: item.systemImage).tag(item)
+        }
+    }
+
+    @ViewBuilder
+    private func detail(for item: SidebarItem) -> some View {
+        switch item {
+        case .dashboard: DashboardView()
+        case .installedApps: InstalledAppsView()
+        case .orphanedFiles: OrphanedFilesView()
+        case .purgeable: PurgeableSpaceView()
+        case .category(let category):
+            CategoryCleanupView(category: category, coordinator: appState.cleanup)
         }
     }
 }

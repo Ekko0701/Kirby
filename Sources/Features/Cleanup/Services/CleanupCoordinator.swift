@@ -117,4 +117,36 @@ final class CleanupCoordinator {
         items = []
         summary = nil
     }
+
+    // MARK: - 범주별 (사이드바 세분화)
+
+    /** idle이면 스캔을 시작한다(범주 화면 진입 시). */
+    func ensureScanned() {
+        if case .idle = state { scan() }
+    }
+
+    func items(in category: ScanCategory) -> [ScanItem] {
+        itemsByCategory[category] ?? []
+    }
+
+    func selectedItems(in category: ScanCategory) -> [ScanItem] {
+        items.filter { $0.category == category && $0.isSelected }
+    }
+
+    func selectedBytes(in category: ScanCategory) -> Int64 {
+        selectedItems(in: category).reduce(0) { $0 + $1.sizeBytes }
+    }
+
+    /** 한 범주의 선택 항목만 정리하고 요약을 돌려준다. */
+    func clean(category: ScanCategory) async -> CleanSummary {
+        let selected = selectedItems(in: category)
+        guard !selected.isEmpty, let module = modules.first(where: { $0.category == category })
+        else { return CleanSummary(itemsCleaned: 0, bytesFreed: 0, errors: [], timestamp: Date()) }
+
+        let result = (try? await module.clean(selected))
+            ?? CleanSummary(itemsCleaned: 0, bytesFreed: 0, errors: [], timestamp: Date())
+        let cleanedIDs = Set(selected.map(\.id))
+        items.removeAll { cleanedIDs.contains($0.id) }
+        return result
+    }
 }
