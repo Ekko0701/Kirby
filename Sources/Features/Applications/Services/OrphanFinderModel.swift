@@ -27,6 +27,11 @@ final class OrphanFinderModel {
 
     var selectedItems: [AppFileItem] { orphans.filter(\.isSelected) }
     var selectedBytes: Int64 { selectedItems.reduce(0) { $0 + $1.sizeBytes } }
+    var allSelected: Bool { !orphans.isEmpty && orphans.allSatisfy(\.isSelected) }
+
+    func setAllSelected(_ value: Bool) {
+        for index in orphans.indices { orphans[index].isSelected = value }
+    }
 
     func deleteSelected() {
         let paths = selectedItems.map(\.path)

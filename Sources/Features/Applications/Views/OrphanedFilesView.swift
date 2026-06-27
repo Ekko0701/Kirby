@@ -81,6 +81,10 @@ struct OrphanedFilesView: View {
             HStack {
                 Button("다시 스캔") { model.scan() }
                     .buttonStyle(.plain).font(VFont.button14).foregroundStyle(Theme.actionBlue)
+                Button(model.allSelected ? "모두 해제" : "모두 선택") {
+                    model.setAllSelected(!model.allSelected)
+                }
+                .buttonStyle(.plain).font(VFont.button14).foregroundStyle(Theme.actionBlue)
                 Spacer()
                 PillButton(title: "정리 (\(ByteFormat.string(model.selectedBytes)))",
                            kind: .primary, isEnabled: !model.selectedItems.isEmpty) {
